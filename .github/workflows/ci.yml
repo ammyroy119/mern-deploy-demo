@@ -47,5 +47,8 @@ jobs:
       - name: Install deps
         run: npm install
 
+      - name: Run lint
+        run: npm run lint
+
       - name: Build React App
         run: npm run build
