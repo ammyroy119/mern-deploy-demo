@@ -10,18 +10,30 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
+.then(() => console.log(`MongoDB connected ${process.env.MONGO_URI}`))
+.catch(err => console.error('MongoDB connection error:', err))
+
 
 const Todo = mongoose.model('Todo', { text: String });
 
 app.get('/api/todos', async (req, res) => {
-  const todos = await Todo.find();
-  res.json(todos);
+  try {
+    const todos = await Todo.find();
+    res.json(todos);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch todos' });
+  }
 });
 
 app.post('/api/todos', async (req, res) => {
-  const todo = new Todo(req.body);
-  await todo.save();
-  res.status(201).json(todo);
+  try {
+    const newTodo = new Todo({ text: req.body.text });
+    await newTodo.save();
+    res.status(201).json(newTodo);
+  } catch (error) {
+    console.error('Error creating todo:', error);
+    res.status(400).json({ error: 'Failed to create todo' });
+  }
 });
 
 app.listen(PORT, () => {
